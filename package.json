@@ -1,0 +1,23 @@
+{
+  "name": "newium-back-v2",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/rainchuk/newium-back-v2.git",
+  "author": "rainchuk <rainchuk.vitaliy@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "start:watch": "nodemon --exec ts-node src/index.ts"
+  },
+  "dependencies": {
+    "@types/mongoose": "^5.5.36",
+    "apollo-server-express": "^2.9.15",
+    "express": "^4.17.1",
+    "graphql": "^14.5.8",
+    "nodemon": "^2.0.2",
+    "ts-node": "^8.5.4",
+    "type-graphql": "^0.17.6",
+    "typeorm": "^0.2.22",
+    "typescript": "^3.7.4"
+  }
+}
