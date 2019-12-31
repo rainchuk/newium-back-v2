@@ -4,7 +4,6 @@ Technologies:
  - Express
  - GraphQL
  - TypeScript
- - MongoDB
 
 ## Available scripts
 
