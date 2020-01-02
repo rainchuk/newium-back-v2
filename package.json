@@ -12,9 +12,12 @@
   "dependencies": {
     "@types/mongoose": "^5.5.36",
     "apollo-server-express": "^2.9.15",
+    "dataloader": "^2.0.0",
     "express": "^4.17.1",
     "graphql": "^14.5.8",
+    "mongodb": "^3.4.1",
     "nodemon": "^2.0.2",
+    "reflect-metadata": "^0.1.13",
     "ts-node": "^8.5.4",
     "type-graphql": "^0.17.6",
     "typeorm": "^0.2.22",
