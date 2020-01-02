@@ -1,24 +1,39 @@
+import "reflect-metadata";
 import { ApolloServer } from "apollo-server-express";
 import { createConnection } from "typeorm";
 import { buildSchema } from "type-graphql";
 import express from "express";
 
-(async function startServer() {
+/** Resolvers */
+import { AuthorResolver } from "./resolvers/Author.resolver";
+
+/** Loaders */
+import { authorLoader } from "./loaders/Author.loader";
+
+async function startServer() {
   const app = express();
 
   await createConnection({
     type: "mongodb",
     host: "localhost",
     port: 27017,
-    database: "newium-v2"
+    database: "newium-v2",
+    entities: [__dirname + "/entity/*.entity.ts"]
   });
 
   const server = new ApolloServer({
-    schema: await new buildSchema({}) // TODO: add schema here
+    schema: await buildSchema({
+      resolvers: [AuthorResolver]
+    }),
+    context: ({ req, res }) => ({
+      authorLoader: authorLoader()
+    })
   });
   server.applyMiddleware({ app });
 
-  app.listen({ port: 5000 }, () => {
+  app.listen(5000, () => {
     console.log(`Listen at http://localhost:5000${server.graphqlPath}`);
   });
-});
+}
+
+startServer();
