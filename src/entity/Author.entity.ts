@@ -1,9 +1,9 @@
-import { Entity, ObjectIdColumn, Column, BaseEntity } from "typeorm";
-import { Field, ObjectType, Int } from "type-graphql";
-import { ObjectID } from "mongodb";
+import { Entity, ObjectIdColumn, Column, BaseEntity } from 'typeorm';
+import { Field, ObjectType, Int } from 'type-graphql';
+import { ObjectID } from 'mongodb';
 
 @ObjectType()
-@Entity("authors")
+@Entity('authors')
 export class Author extends BaseEntity {
   @ObjectIdColumn()
   id: ObjectID;
@@ -21,7 +21,7 @@ export class Author extends BaseEntity {
   email: string;
 
   @Field(() => Int)
-  @Column("int", { default: 0 })
+  @Column('int', { default: 0 })
   count: number;
 
   @Field()

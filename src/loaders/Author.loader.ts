@@ -1,7 +1,7 @@
-import DataLoader from "dataloader";
-import { ObjectID } from "mongodb";
+import DataLoader from 'dataloader';
+import { ObjectID } from 'mongodb';
 
-import { Author } from "../entity/Author.entity";
+import { Author } from '../entity/Author.entity';
 
 type BatchAuthor = (ids: readonly string[]) => Promise<Author[]>;
 type AuthorsMap = { [key: string]: Author };
@@ -12,9 +12,9 @@ const batchAuthors: BatchAuthor = async ids => {
   const authors = await Author.find({
     where: {
       _id: {
-        $in: _ids
-      }
-    }
+        $in: _ids,
+      },
+    },
   });
 
   const authorsMap: AuthorsMap = {};
