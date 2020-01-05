@@ -7,28 +7,39 @@ import {
   Arg,
   FieldResolver,
   Root,
-  Ctx
+  Ctx,
+  Int
 } from "type-graphql";
 import { ObjectID } from "mongodb";
+import bcrypt from "bcrypt";
 
 import { Author } from "../entity/Author.entity";
+
+import { BCRYPT_HASH_ROUNDS } from "../utils/config";
+import { createTokens } from "../utils/createTokens";
 
 @InputType()
 class AuthorInput {
   @Field()
-  lastName!: string;
+  lastName: string;
 
   @Field()
-  firstName!: string;
+  firstName: string;
 
   @Field()
-  email!: string;
+  email: string;
+
+  @Field()
+  password!: string;
+
+  @Field(() => Int, { defaultValue: 0 })
+  count: number;
 
   @Field(() => [String], { defaultValue: [] })
-  followers!: [ObjectID];
+  followers: [ObjectID];
 
   @Field(() => [String], { defaultValue: [] })
-  following!: [ObjectID];
+  following: [ObjectID];
 }
 
 @InputType()
@@ -40,10 +51,32 @@ class FollowInput {
   authorId!: string;
 }
 
+@InputType()
+class AuthInput {
+  @Field()
+  email!: string;
+
+  @Field()
+  password!: string;
+}
+
 @Resolver(() => Author)
 export class AuthorResolver {
+  // TODO: update creation method
   @Mutation(() => Author)
   async createAuthor(@Arg("options", () => AuthorInput) options: AuthorInput) {
+    const { email, password } = options;
+
+    const user = await Author.findOne({ email });
+
+    if (user) {
+      throw new Error("User does exist");
+    }
+
+    const hashedPassword = await bcrypt.hash(password, BCRYPT_HASH_ROUNDS);
+
+    options.password = hashedPassword;
+
     const author = await Author.create(options).save();
     return author;
   }
@@ -98,9 +131,68 @@ export class AuthorResolver {
     return false;
   }
 
+  @Mutation(() => Boolean)
+  async logOut(@Ctx() { req, res }: any) {
+    if (!req.authorId) {
+      return false;
+    }
+
+    const author = await Author.findOne(req.authorId);
+
+    if (!author) {
+      return false;
+    }
+
+    author.count += 1;
+    await author.save();
+
+    res.clearCookie("access-token");
+    res.clearCookie("refresh-token");
+
+    return true;
+  }
+
   @Query(() => [Author])
-  authors() {
-    return Author.find();
+  async authors() {
+    return await Author.find();
+  }
+
+  @Query(() => Author)
+  async author(@Ctx() { req }: any) {
+    if (!req.authorId) {
+      throw new Error("Invalid data");
+    }
+
+    return await Author.findOne(req.authorId);
+  }
+
+  @Query(() => Author)
+  async login(
+    @Arg("options", () => AuthInput) options: AuthInput,
+    @Ctx() { res }: any
+  ) {
+    const { email, password } = options;
+
+    const author = await Author.findOne({ email });
+
+    if (!author) {
+      throw new Error("Invalid data");
+    }
+
+    const valid = await bcrypt.compare(password, author.password);
+
+    if (!valid) {
+      throw new Error("Invalid data");
+    }
+
+    const { accessToken, refreshToken } = createTokens(author);
+
+    res.cookie("refresh-token", refreshToken, {
+      maxAge: 60 * 60 * 24 * 7 * 1000
+    });
+    res.cookie("access-token", accessToken, { maxAge: 60 * 60 * 1000 });
+
+    return author;
   }
 
   @FieldResolver(() => [Author])

@@ -1,30 +1,38 @@
 import { Entity, ObjectIdColumn, Column, BaseEntity } from "typeorm";
-import { Field, ObjectType } from "type-graphql";
+import { Field, ObjectType, Int } from "type-graphql";
 import { ObjectID } from "mongodb";
 
 @ObjectType()
-@Entity()
+@Entity("authors")
 export class Author extends BaseEntity {
   @ObjectIdColumn()
-  id!: ObjectID;
+  id: ObjectID;
 
   @Field()
   @Column()
-  lastName!: string;
+  lastName: string;
 
   @Field()
   @Column()
-  firstName!: string;
+  firstName: string;
 
   @Field()
   @Column()
-  email!: string;
+  email: string;
+
+  @Field(() => Int)
+  @Column("int", { default: 0 })
+  count: number;
+
+  @Field()
+  @Column()
+  password: string;
 
   @Field(() => [Author])
   @Column({ array: true, default: [] })
-  followers!: [ObjectID];
+  followers: [ObjectID];
 
   @Field(() => [Author])
   @Column({ array: true, default: [] })
-  following!: [ObjectID];
+  following: [ObjectID];
 }
