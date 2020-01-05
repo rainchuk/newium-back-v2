@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 import "reflect-metadata";
 import { ApolloServer } from "apollo-server-express";
 import { createConnection } from "typeorm";
@@ -26,6 +28,8 @@ async function startServer() {
       resolvers: [AuthorResolver]
     }),
     context: ({ req, res }) => ({
+      req,
+      res,
       authorLoader: authorLoader()
     })
   });
